@@ -74,22 +74,37 @@ export function openProject(projectPath, projectLink, exporting = false) {
       projectPath = LoadHelpers.correctSaveLocation(projectPath);
       let manifest = LoadHelpers.loadFile(projectPath, 'manifest.json');
       manifest = LoadHelpers.verifyChunks(projectPath, manifest);
+      LoadHelpers.migrateAppsToDotApps(projectPath);
+      let conflictsFound = LoadHelpers.findMergeConflicts(manifest.finished_chunks, projectPath);
+      if (conflictsFound) {
+        dispatch(AlertModalActions.openAlertDialog("Oops! The project you are trying to load has a merge conflict and cannot be opened in this version of translationCore! Please contact Help Desk (help@door43.org) for assistance."));
+        dispatch(clearPreviousData());
+        return;
+      }
       if (!manifest || !manifest.tcInitialized) {
         manifest = LoadHelpers.setUpManifest(projectPath, projectLink, manifest, currentUser);
       } else {
         let oldManifest = LoadHelpers.loadFile(projectPath, 'tc-manifest.json');
         if (oldManifest) {
           manifest = LoadHelpers.setUpManifest(projectPath, projectLink, oldManifest, currentUser);
-          let conflictsFound = LoadHelpers.findMergeConflicts(manifest.finished_chunks, projectPath);
-          if (conflictsFound) {
-            dispatch(AlertModalActions.openAlertDialog("Oops! The project you are trying to load has a merge conflict and cannot be opened in this version of translationCore! Please contact Help Desk (help@door43.org) for assistance."));
-            dispatch(clearPreviousData());
-            return;
-          }
         }
       }
-      dispatch(addLoadedProjectToStore(projectPath, manifest));
-      if (!exporting) dispatch(displayToolsToLoad(manifest));
+      if (LoadHelpers.checkMissingVerses(manifest.project.name, projectPath)) {
+        dispatch(AlertModalActions.openOptionDialog('Oops! Your project has blank verses! Please contact Help Desk (help@door43.org) for assistance with fixing this problem. If you proceed without fixing, some features may not work properly', 
+        (option)=> {
+            if (option === "Cancel") {
+                dispatch(clearPreviousData());
+                dispatch(AlertModalActions.closeAlertDialog());
+            } else {
+                dispatch(AlertModalActions.closeAlertDialog());
+                dispatch(addLoadedProjectToStore(projectPath, manifest));
+                if (!exporting) dispatch(displayToolsToLoad(manifest));
+            }
+        }, "Continue Without Fixing", "Cancel"));
+      } else {
+        dispatch(addLoadedProjectToStore(projectPath, manifest));
+        if (!exporting) dispatch(displayToolsToLoad(manifest));
+      }
     }
   });
 }
@@ -284,7 +299,7 @@ function loadProjectDataFromFileSystem(toolName) {
   return ((dispatch, getState) => {
     return new Promise((resolve, reject) => {
       let { projectSaveLocation, params } = getState().projectDetailsReducer;
-      const dataDirectory = Path.join(projectSaveLocation, 'apps', 'translationCore', 'index', toolName);
+      const dataDirectory = Path.join(projectSaveLocation, '.apps', 'translationCore', 'index', toolName);
 
       loadGroupIndexFromFS(dispatch, dataDirectory)
         .then((successMessage) => {
@@ -383,6 +398,7 @@ function loadGroupDataFromFS(dispatch, dataDirectory, toolName, params) {
         i++;
       }
       dispatch(GroupsDataActions.loadGroupsDataFromFS(allGroupsObjects));
+      dispatch(GroupsDataActions.verifyGroupDataMatchesWithFs());
       console.log('Loaded group data from fs');
       resolve("success");
     } else {
@@ -471,8 +487,12 @@ export function startModuleFetchData() {
       .then(() => {
         // TODO: this action may stay here temporary until the home screen implementation.
         dispatch(BodyUIActions.toggleHomeView(false));
+        resolve();
+      })
+      .then(() => {
+        dispatch(GroupsDataActions.verifyGroupDataMatchesWithFs());
+        resolve();
       });
-      resolve("success");
     });
   });
 }
