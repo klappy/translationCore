@@ -4,7 +4,23 @@ import { Button, Row, Col, utils } from 'react-bootstrap/lib';
 const bootstrapUtils = utils.bootstrapUtils;
 bootstrapUtils.addStyle(Button, 'white');
 
-const iW = {
+const AG = {
+  appWindow: {
+    marginRight: "0px",
+    marginLeft: "0px",
+    marginBottom: "10px",
+    width: "100%",
+    minHeight: "120px",
+    borderRadius: '0px',
+    padding: '0px',
+    backgroundColor: "#409EBA",
+    color: "#FFFFFF",
+    display: "inline-table",
+    boxSizing: "border-box"
+  }
+};
+
+const tW = {
   appWindow: {
     marginRight: "0px",
     marginLeft: "0px",
@@ -57,8 +73,11 @@ class AppDescription extends React.Component {
     let { title, version, description, badgeImagePath, folderName, name} = this.props.metadata;
     let Styles;
     switch (name) {
+      case "Autographa":
+        Styles = AG.appWindow;
+        break;
       case "translationWords":
-        Styles = iW.appWindow;
+        Styles = tW.appWindow;
         break;
       case "translationNotes":
         Styles = tN.appWindow;
