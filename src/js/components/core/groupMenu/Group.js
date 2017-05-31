@@ -4,6 +4,7 @@ import { Glyphicon } from 'react-bootstrap'
 import { Circle } from 'react-progressbar.js'
 import GroupItem from './GroupItem'
 import * as Style from './Style'
+import isEqual from 'lodash/isEqual'
 
 class Group extends React.Component {
   /**
@@ -49,7 +50,8 @@ class Group extends React.Component {
     let items = [];
     let index = 0;
     for (var groupItemData of groupData) {
-      items.push(<GroupItem scrollIntoView={this.scrollIntoView} {...this.props} {...groupItemData} key={index} />)
+      let active = isEqual(groupItemData.contextId, this.props.contextIdReducer.contextId);
+      items.push(<GroupItem active={active} scrollIntoView={this.scrollIntoView} {...this.props} {...groupItemData} key={index} />)
       index++
     }
     return items;
@@ -80,7 +82,7 @@ class Group extends React.Component {
           {active ? expandedGlyph : collapsedGlyph}
           <Circle
             progress={progress}
-            options={{ strokeWidth: 15, color: "#4ABBE6", trailColor: "#FFF", trailWidth: 15 }}
+            options={{ strokeWidth: 15, color: "var(--accent-color-light)", trailColor: "var(--reverse-color)", trailWidth: 15 }}
             initialAnimate={false}
             containerStyle={{ width: '20px', height: '20px', marginRight: '10px', float: 'left' }}
           />

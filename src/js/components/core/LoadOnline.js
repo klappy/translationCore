@@ -32,10 +32,10 @@ module.exports = (function() {
       url+='.git';
     }
 
-    var expression = new RegExp(/^https?:\/\/git.door43.org\/[^\/]+\/([^\/.]+).git$/);
+    var expression = new RegExp(/^https?:\/\/(git.door43.org|door43.org\/u)\/[^\/]+\/([^\/.]+).git$/);
 
     if (expression.test(url)) {
-      var projectName = expression.exec(url)[1];
+      var projectName = expression.exec(url)[2];
       var savePath = path.join(pathex.homedir(), 'translationCore', projectName);
     } else {
       if (callback) {
@@ -67,16 +67,16 @@ module.exports = (function() {
       if (err) {
         fs.removeSync(savePath);
         if (callback)
-          callback(err, null, null);
-        return;
-      }
-      try {
-        fs.readFileSync(path.join(savePath, 'manifest.json'));
-        if (callback)
-          callback(null, savePath, url);
-      } catch (error) {
-        if (callback)
-          callback({type: "custom", text: "Cannot read project manifest file"}, savePath, null);
+          callback({type: "custom", text: "Cannot clone repository"}, null, null);
+      } else {
+        try {
+          fs.readFileSync(path.join(savePath, 'manifest.json'));
+          if (callback)
+            callback(null, savePath, url);
+        } catch (error) {
+          if (callback)
+            callback({type: "custom", text: "Cannot read project files"}, savePath, null);
+        }
       }
     });
   }
