@@ -13,6 +13,7 @@ export const getToggledGroupData = (state, action, key) => {
     return isEqual(groupObject.contextId, action.contextId)
   });
   let index = groupData.indexOf(groupObject)
+  if (!groupData[index]) groupData[index] = {}
   switch (key) {
     case "comments":
       if (action.text.length > 0) {
