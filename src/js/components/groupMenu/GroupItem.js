@@ -30,6 +30,10 @@ class GroupItem extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    return this.props.active !== nextProps.active;
+  }
+
   componentWillReceiveProps(nextProps, context) {
     if (nextProps.active) {
       if (this.inView(nextProps.groupMenuHeader, this)) {
@@ -38,18 +42,18 @@ class GroupItem extends React.Component {
         nextProps.scrollIntoView(nextProps.groupMenuHeader);
       }
       else {
-         //Scroll to the current check item
+        //Scroll to the current check item
         nextProps.scrollIntoView(this);
       }
     }
   }
 
-/**
- * @description - Tests if the the two elements are in the scope of the window (scroll bar)
- * The consts MENU_BAR_HEIGHT & MENU_ITEM_HEIGHT are set to account for the static window avialablity 
- * @param {object} groupMenu - The current group menu header that is extended/actived (i.e. Metaphors)
- * @param {object} currentItem - The current group check item that is active (i.e. Luke 1:1)
- */
+  /**
+   * @description - Tests if the the two elements are in the scope of the window (scroll bar)
+   * The consts MENU_BAR_HEIGHT & MENU_ITEM_HEIGHT are set to account for the static window avialablity 
+   * @param {object} groupMenu - The current group menu header that is extended/actived (i.e. Metaphors)
+   * @param {object} currentItem - The current group check item that is active (i.e. Luke 1:1)
+   */
   inView(groupMenu, currentItem) {
     var rectGroup = ReactDOM.findDOMNode(groupMenu).getBoundingClientRect();
     var rectItem = ReactDOM.findDOMNode(currentItem).getBoundingClientRect();

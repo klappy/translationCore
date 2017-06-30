@@ -3,7 +3,11 @@ import {Glyphicon} from 'react-bootstrap';
 import {CardHeader} from 'material-ui/Card';
 import Dialog from 'material-ui/Dialog';
 
-class Alert extends Component {
+class Alert extends Component {  
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.alertDialogVisibility === nextProps.alertDialogVisibility;
+  }
+  
   render() {
     let {alertText, alertDialogVisibility, alertDialogLoading, callback, button1, button2} = this.props.alertModalReducer;
     let {closeAlertDialog} = this.props.actions;

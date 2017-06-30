@@ -71,6 +71,7 @@
     "gogs-client": "^0.5.2",
     "has-unicode": "^2.0.1",
     "http": "0.0.0",
+    "jsan": "^3.1.9",
     "konami-code-js": "^0.8.0",
     "lodash": "^4.17.4",
     "lodash.merge": "^4.6.0",
