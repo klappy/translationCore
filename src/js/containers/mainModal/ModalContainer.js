@@ -12,6 +12,14 @@ import { openAlertDialog } from '../../actions/AlertModalActions.js';
 import * as modalActions from '../../actions/ModalActions.js';
 
 class ModalContainer extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      this.props.visible !== nextProps.visible ||
+      this.props.currentTab !== nextProps.currentTab ||
+      this.props.currentSection !== nextProps.currentSection
+    ) 
+  }
+  
 
   render() {
     let { currentTab, visible, hide, selectModalTab } = this.props;

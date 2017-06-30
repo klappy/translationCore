@@ -6,6 +6,10 @@ import Loader from '../components/loader/Loader';
 import * as LoaderActions from '../actions/LoaderActions.js';
 
 class LoaderContainer extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.show !== nextProps.show;
+  }
+  
   render() {
     return (
       <Loader {...this.props}/>

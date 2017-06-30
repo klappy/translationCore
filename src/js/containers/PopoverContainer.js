@@ -7,7 +7,10 @@ import Popover from '../components/Popover.js'
 import { closePopover } from '../actions/PopoverActions.js'
 
 class PopoverContainer extends React.Component {
-
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.popoverVisibility !== nextProps.popoverVisibility;
+  }
+  
   render(){
     return (
       <div>

@@ -7,12 +7,14 @@ import Alert from '../components/dialogComponents/Alert'
 import { closeAlertDialog } from '../actions/AlertModalActions'
 
 class AlertDialogContainer extends Component {
-
-  render(){
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.alertDialogVisibility === nextProps.alertDialogVisibility;
+  }
+  render() {
     return (
       <div>
         <MuiThemeProvider>
-          <Alert {...this.props}/>
+          <Alert {...this.props} />
         </MuiThemeProvider>
       </div>
     );

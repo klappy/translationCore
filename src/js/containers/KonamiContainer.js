@@ -6,7 +6,10 @@ import {toggleSettings} from '../actions/SettingsActions';
 import * as AlertModalActions from '../actions/AlertModalActions';
 
 class KonamiContainer extends React.Component {
-
+  shouldComponentUpdate(nextProps, nextState) {
+    false;
+  }
+  
   componentWillMount() {
     // Konami Code ( << Up, Up, Down, Down, Left, Right, Left, Right, B, A >> )
     // This is used to enable or disable developer mode
