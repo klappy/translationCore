@@ -390,6 +390,7 @@ export function createCheckArray(dataObject, moduleFolderName) {
  * @returns {Boolean} True if there is any missing verses, false if the project does not contain any
  */
 export function projectIsMissingVerses(book, projectSaveLocation) {
+    debugger;
     let chapterArray = [];
     let hash = {};
     let chapters = fs.readdirSync(projectSaveLocation);
@@ -456,17 +457,14 @@ const expectedVerses = {
  * @param {String} projectPath - The current save location of the project
  * @returns {Boolean} True if there is any merge conflicts, false if the project does not contain any
  */
-export function projectHasMergeConflicts(projectChunks, projectPath) {
-    for (let chapterVerse in projectChunks) {
-        let splitID = projectChunks[chapterVerse].split('-');
-        let chapter = splitID[0];
-        let verse = splitID[1];
-        let filePath = Path.join(projectPath, chapter, verse + ".txt");
-        if (fs.existsSync(filePath)) {
-            let fileContents = fs.readFileSync(filePath).toString();
-            if (~fileContents.indexOf('<<<<<<<')) {
+export function projectHasMergeConflicts(projectPath, bookAbbr) {
+    let chapters = fs.readdirSync(Path.join(projectPath, bookAbbr))
+    for (let currentChapter of chapters) {
+        if (!parseInt(Path.basename(currentChapter))) continue;
+        let chapterObject = fs.readJSONSync(Path.join(projectPath, bookAbbr, currentChapter));
+        for (var verse in chapterObject)
+            if (verse.indexOf('<<<<<<<')) {
                 return true;
-            }
         }
     }
     return false;
