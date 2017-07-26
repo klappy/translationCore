@@ -1,14 +1,17 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+// actions
 import * as PopoverActions from '../../actions/PopoverActions';
 import * as LoginActions from '../../actions/LoginActions';
 import * as AlertModalActions from '../../actions/AlertModalActions';
 import * as BodyUIActions from '../../actions/BodyUIActions';
 import * as OnlineModeActions from '../../actions/OnlineModeActions';
-import LoginContainer from './LoginContainer';
-import Logout from '../../components/home/usersManagement/Logout';
+// components
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { Card } from 'material-ui/Card';
+import LoginContainer from '../../components/home/usersManagement';
+import Logout from '../../components/home/usersManagement/Logout';
 
 class UsersManagementContainer extends Component {
 
@@ -19,22 +22,44 @@ class UsersManagementContainer extends Component {
     }
   }
 
+  showLoggedInInstructions() {
+    let instructions = (
+      <div>
+        <div style={{ margin: 15 }}>You are currently logged in.</div>
+        <div style={{ margin: 15 }}>To continue to Projects, click "Continue to Project"</div>
+        <div style={{ margin: 15 }}>To log out, click "Log out"</div>
+      </div>
+    );
+    this.props.actions.changeHomeInstructions(instructions);
+  }
+
+  showLoggedOutInstructions() {
+    let instructions = (
+      <div>
+        <div style={{ margin: 15 }}>Please login with your Door43 Account</div>
+        <div style={{ margin: 15 }}>If you do not have an account already, you may create an account.</div>
+        <div style={{ margin: 15 }}>If you would rather work offline, you may select create a local account.</div>
+      </div>
+    );
+    this.props.actions.changeHomeInstructions(instructions);
+  }
+
   instructions() {
     const { loggedInUser } = this.props.reducers.loginReducer;
-    if (!loggedInUser) {
-      return (
-        <div>
-          <div style={{ margin: 15 }}>Please login with your Door43 Account</div>
-          <div style={{ margin: 15 }}>If you do not have an account already, you may create an account.</div>
-          <div style={{ margin: 15 }}>If you would rather work offline, you may select continue offline.</div>
-        </div>
-      )
-    } else {
+    if (loggedInUser) {
       return (
         <div>
           <div style={{ margin: 15 }}>You are currently logged in.</div>
           <div style={{ margin: 15 }}>To continue to Projects, click "Continue to Project"</div>
           <div style={{ margin: 15 }}>To log out, click "Log out"</div>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <div style={{ margin: 15 }}>Please login with your Door43 Account</div>
+          <div style={{ margin: 15 }}>If you do not have an account already, you may create an account.</div>
+          <div style={{ margin: 15 }}>If you would rather work offline, you may select create a local account.</div>
         </div>
       )
     }
@@ -46,22 +71,50 @@ class UsersManagementContainer extends Component {
       background: 'white', padding: '20px',
       marginTop: '5px', display: 'flex'
     }
-    const { loggedInUser } = this.props.reducers.loginReducer;
-    const userdata = this.props.reducers.loginReducer.userdata || {};
-    const { username, email } = userdata;
+    const { loggedInUser, userdata } = this.props.reducers.loginReducer;
+    const { username, email } = userdata || {};
+
     return (
       <div style={{ height: '100%', width: '100%' }}>
         User
       <MuiThemeProvider>
           <Card style={{ height: '100%' }} containerStyle={userCardManagementCardStyle}>
             {!loggedInUser ?
-              <LoginContainer {...this.props} /> :
-              <Logout username={username} email={email} {...this.props} />
+              <LoginContainer
+                {...this.props}
+                loginUser={(loginCredentials) => {
+                  this.props.actions.loginUser(loginCredentials);
+                  this.showLoggedInInstructions();
+                }}
+                loginLocalUser={(localUsername) => {
+                  this.props.actions.loginLocalUser(localUsername);
+                  this.showLoggedInInstructions();
+                }}
+              />
+              :
+              <Logout
+                {...this.props}
+                logoutUser={() => {
+                  this.props.actions.logoutUser();
+                  this.showLoggedOutInstructions();
+                }}
+                username={username}
+                email={email}
+              />
             }
           </Card>
         </MuiThemeProvider>
       </div>
     );
+  }
+}
+
+const mapStateToProps = (state,) => {
+  return {
+    reducers: {
+      homeScreenReducer: state.homeScreenReducer,
+      loginReducer: state.loginReducer
+    }
   }
 }
 
@@ -95,14 +148,20 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       },
       confirmOnlineAction: (callback) => {
         dispatch(OnlineModeActions.confirmOnlineAction(callback));
+      },
+      changeHomeInstructions: (instructions) => {
+        dispatch(BodyUIActions.changeHomeInstructions(instructions));
       }
     }
   }
 };
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-  }
-}
+UsersManagementContainer.propTypes = {
+  reducers: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(UsersManagementContainer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UsersManagementContainer);

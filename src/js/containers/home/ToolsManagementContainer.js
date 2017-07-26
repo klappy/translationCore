@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux'
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 // components
 import ToolsCards from '../../components/home/toolsManagement/ToolsCards'
 // actions
@@ -14,7 +15,7 @@ class ToolsManagementContainer extends Component {
   componentWillMount() {
     this.props.actions.getToolsMetadatas();
     // get instructions
-    let instructions = <div>ToolsManagementInstructions</div>;
+    let instructions = <div>Select a tool from the list</div>;
     if (this.props.reducers.homeScreenReducer.homeInstructions !== instructions) {
       this.props.actions.changeHomeInstructions(instructions);
     }
@@ -23,16 +24,26 @@ class ToolsManagementContainer extends Component {
   render() {
     const { toolsMetadata } = this.props.reducers.toolsReducer;
     const { loggedInUser } = this.props.reducers.loginReducer;
-    const { bookName, projectSaveLocation, currentProjectToolsProgress } = this.props.reducers.projectDetailsReducer;
+    const {
+      currentSettings: {
+        developerMode
+      }
+    } = this.props.reducers.settingsReducer;
+    const {
+      bookName,
+      projectSaveLocation,
+      currentProjectToolsProgress
+    } = this.props.reducers.projectDetailsReducer;
 
     return (
       <div style={{ height: '100%' }}>
         ToolsManagementContainer
         <ToolsCards
-          actions={this.props.actions}
-          toolsMetadata={toolsMetadata}
           bookName={bookName}
           loggedInUser={loggedInUser}
+          actions={this.props.actions}
+          developerMode={developerMode}
+          toolsMetadata={toolsMetadata}
           projectSaveLocation={projectSaveLocation}
           currentProjectToolsProgress={currentProjectToolsProgress}
         />
@@ -64,7 +75,6 @@ const mapDispatchToProps = (dispatch) => {
       },
       launchTool: (toolFolderPath, loggedInUser, currentToolName) => {
         if (!loggedInUser) {
-          //dispatch(modalActions.selectModalTab(1, 1, true));
           dispatch(AlertModalActions.openAlertDialog("Please login before opening a tool"));
           return;
         }
@@ -79,6 +89,11 @@ const mapDispatchToProps = (dispatch) => {
     }
   }
 }
+
+ToolsManagementContainer.propTypes = {
+  reducers: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired
+};
 
 export default connect(
   mapStateToProps,
