@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs from 'fs-extra';
 import path from 'path-extra';
 import consts from './ActionTypes';
@@ -6,6 +7,7 @@ import * as AlertModalActions from './AlertModalActions';
 import * as GroupsDataActions from './GroupsDataActions';
 import * as GroupsIndexActions from './GroupsIndexActions';
 import * as LoaderActions from './LoaderActions';
+import * as BodyUIActions from './BodyUIActions';
 // helpers
 import * as ResourcesHelpers from '../helpers/ResourcesHelpers';
 /**
@@ -27,6 +29,7 @@ export function loadProjectData(currentToolName) {
           .then(() => {
             dispatch(GroupsDataActions.verifyGroupDataMatchesWithFs());
             dispatch({ type: consts.TOGGLE_LOADER_MODAL, show: false });
+            dispatch(BodyUIActions.toggleHomeView(false));
           });
         });
     })
